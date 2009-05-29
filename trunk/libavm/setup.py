@@ -48,10 +48,10 @@ setup(
 	version=read_version(),
 	description='Python AVM Library for working with Astronomy Visualization Metadata.',
 	author='Amit Kapadia',
-	author_email='akapadia@gmail.com',
+	author_email='akapad@gmail.com',
 	url='http://code.google.com/p/python-avm-library/',
 	download_url='http://code.google.com/p/python-avm-library/downloads/list',
-	long_description='Python XMP Toolkit is a library for working with XMP metadata, as well as reading/writing XMP metadata stored in many different file formats.',
+	long_description='A module for parsing, manipulating, and serializing Astronomy Visualization Metadata in the XMP format. ',
 	license='New BSD License',
 	packages=['libavm'],
 )
