@@ -1,11 +1,9 @@
-Python XMP Toolkit is a library for working with XMP metadata, as well as
-reading/writing XMP metadata stored in many different file formats. 
+Python AVM Library is a library for working with Astronomy Visualization Metadata (AVM) in the XMP format.
 
-Python XMP Toolkit is wrapping Exempi (using ctypes), a C/C++ XMP library
-based on Adobe XMP Toolkit, ensuring that future updates to the XMP standard
-are easily incorporated into the library with a minimum amount of work.
+Python AVM Library is a wrapper around the Python XMP Toolkit, providing simple access to AVM-specific
+fields.
 
-Python XMP Toolkit has been developed by: 
+Python AVM Library has been developed by: 
  * ESA/Hubble - European Space Agency 
  * ESO - European Southern Observatory
 
