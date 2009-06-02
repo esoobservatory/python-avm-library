@@ -58,7 +58,7 @@ def avm_from_file(file_path):
 	avm = libavm.AVMMeta(xmp=xmp)
 	return avm.data
 
-def avm_to_file(file_path, dict={}):
+def avm_to_file(file_path, dict={}, replace=False):
 	"""
 	Function to inject AVM into a file.  Preserves existing XMP in the file, while replacing
 	fields passed through dict.
@@ -68,10 +68,12 @@ def avm_to_file(file_path, dict={}):
 	
 	:param file_path: Path to file
 	:param dict: A dictionary containing AVM metadata
+	:param xmp: An XMPMeta instance
+	:param replace: Boolean to replace the exisiting XMP in the file.  By default it is set to False.
 	
 	:return: Boolean
 	
-	.. todo:: Improve avm_to_file function
+	.. todo:: Improve avm_to_file function.  Add ability to input an XMP file
 	"""
 	xmpfile = libxmp.files.XMPFiles()
 	
@@ -80,11 +82,14 @@ def avm_to_file(file_path, dict={}):
 	except libxmp.XMPError:
 		return False
 
-	xmp = xmpfile.get_xmp()
-	if xmp:
-		pass
-	else:
+	if replace is True:
 		xmp = libxmp.XMPMeta()
+	else:
+		xmp = xmpfile.get_xmp()
+		if xmp:
+			pass
+		else:
+			xmp = libxmp.XMPMeta()
 	
 	avm = libavm.AVMMeta(xmp=xmp, avm_dict=dict)
 	

@@ -52,7 +52,7 @@ SPECS_1_1 = {
     # Creator Metadata
     'Creator' : AVMString(XMP_NS_Photoshop, 'photoshop:Source'),
     'CreatorURL': AVMURL(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
-    'Contact.Name': AVMString(XMP_NS_DC, 'dc:subject'),
+    'Contact.Name': AVMOrderedStringList(XMP_NS_DC, 'dc:creator'),
     'Contact.Email': AVMEmail(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiEmailWork'),
     'Contact.Telephone': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiTelWork'),
     'Contact.Address': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr'),
