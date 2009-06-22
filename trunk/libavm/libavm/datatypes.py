@@ -36,8 +36,10 @@ import libxmp
 import re
 import time
 import datetime
+from dateutil import parser
 
-from libavm.exceptions import AVMListLengthError, AVMItemNotInControlledVocabularyError
+from libxmp.core import _encode_as_utf8
+from libavm.exceptions import *
 
 
 __all__ = [
@@ -49,10 +51,11 @@ __all__ = [
     'AVMLocalizedString',
     'AVMFloat',
     'AVMUnorderedStringList',
-    'AVMOrderedStringList',
-    'AVMOrderedStringListCV',
+    'AVMOrderedList',
+    'AVMOrderedListCV',
     'AVMOrderedFloatList',
     'AVMDate',
+    'AVMDateTimeList',
 ]
 
 
@@ -68,10 +71,11 @@ class AVMData( object ):
     def check_data(self, value):
         """
         All other data classes should define check_data() based on the type of data.
+        Encoding of string into UTF-8 happens here.
         
-        :return: Object
+        :return: String (UTF-8)
         """
-        return value
+        return _encode_as_utf8(value)
     
     def set_data(self, xmp_packet, value):
         """
@@ -81,7 +85,7 @@ class AVMData( object ):
         :return: Boolean
         """
         value = self.check_data(value)
-        if xmp_packet.set_property(self.namespace, self.path, str(value)):
+        if xmp_packet.set_property(self.namespace, self.path, value):
             return True
         else:
             return False
@@ -110,31 +114,89 @@ class AVMString( AVMData ):
     """
     def check_data(self, value):
         """
-        Check that the data is a string, otherwise it raises a TypeError
+        Check that the data is a string or unicode, otherwise it raises a TypeError.
         
-        :return: String
+        :return: String (UTF-8)
         """
-        if isinstance(value, str):
+        if isinstance(value, str) or isinstance(value, unicode):
+            return _encode_as_utf8(value)
+        else:
+            raise TypeError("Value is not a string or unicode.")
+
+
+class AVMURL( AVMString ):
+    """
+    Data type for URLs.
+    
+    :return: String (UTF-8)
+    """
+    def check_data(self, value):
+        """
+        Checks the data is a string or unicode, and checks data
+        against a regular expression for a URL.  If the user leaves
+        off the protocol,then 'http://' is attached as a default.
+        
+        :return: String (UTF-8)
+        """
+        if not (isinstance(value, str) or isinstance(value, unicode)):
+            raise TypeError("Value is not a string or unicode.")
+        
+        value =  _encode_as_utf8(value)
+        
+        if value and '://' not in value:
+            value = 'http://%s' % value
+        
+        url_re = re.compile(
+            r'^https?://' # http:// or https://
+            r'(?:(?:[A-Z0-9-]+\.)+[A-Z]{2,6}|' #domain...
+            r'localhost|' #localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+            r'(?::\d+)?' # optional port
+            r'(?:/?|/\S+)$', re.IGNORECASE)
+        
+        if re.search(url_re, value):
             return value
         else:
-            raise TypeError, "Value is not a string"
-    
-    def set_data(self, xmp_packet, value):
-        """
-        Injects data into the XMP packet after imposing the appropriate check_data function 
+            raise ValueError("Enter a proper URL.")
         
-        :return: Boolean
-        """        
-        value = self.check_data(value)
-        if xmp_packet.set_property(self.namespace, self.path, value):
-            return True
+
+class AVMEmail( AVMString ):
+    """
+    Data type for email addresses.
+    
+    :return: String (UTF-8)
+    """       
+    def check_data(self, value):
+        """
+        Checks data is a string or unicode, and checks against a regular expression
+        for an email.  If value is not a string or unicode, a TypeError is raised.
+        If the value is not a proper email, then a ValueError is raised.
+        
+        :return: String (UTF-8)
+        """
+        if not (isinstance(value, str) or isinstance(value, unicode)):
+            raise TypeError("Value is not a string or unicode.") 
+        
+        value =  _encode_as_utf8(value)
+        
+        email_re = re.compile(
+            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
+            r')@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}$', re.IGNORECASE
+        )
+        
+        if re.search(email_re, value):
+            return value
+        else:
+            raise ValueError("Enter a proper email address.")
+
+
 
 class AVMStringCV( AVMString ):
     """ """
     def __init__(self, ns, path, cv):
-        self.namespace = ns
-        self.path = path
-        self.controlled_vocabulary = cv 
+        self.controlled_vocabulary = cv
+        super( AVMStringCV, self).__init__(ns, path) 
     
     def format_data(self, value):
         """
@@ -152,23 +214,28 @@ class AVMStringCV( AVMString ):
         if value in self.controlled_vocabulary:
             return True
         else:
-            raise AVMItemNotInControlledVocabularyError
+            return False
+            
         
     def check_data(self, value):
         """
-        Check that the data is a string, formats the data appropriately using format_data()
+        Check that the data is a string or unicode, formats the data appropriately using format_data()
         and calls check_cv()
         
-        :return: String
+        :return: String (UTF-8)
         """
         
-        if isinstance(value, str):
+        if isinstance(value, str) or isinstance(value, unicode):
+            value =  _encode_as_utf8(value)
             value = self.format_data(value)
             
             if self.check_cv(value):
                 return value
+            else:
+                raise AVMItemNotInControlledVocabularyError("Item is not in the controlled vocabulary.")
         else:
-            raise TypeError, "Value is not a string"    
+            raise TypeError("Value is not a string or unicode.")    
+
 
 class AVMStringCVCapitalize( AVMStringCV ):
     def format_data(self, value):
@@ -188,87 +255,12 @@ class AVMStringCVUpper( AVMStringCV ):
         """
         return value.upper()
 
-class AVMURL( AVMString ):
-    """
-    Data type for URLs
-    """
-    def check_data(self, value):
-        """
-        Checks data against a regular expression for a URL.  If the user leaves off 
-        the protocol, then 'http://' is attached
-        
-        :return: String
-        """
-        
-        if not isinstance(value, str):
-            raise TypeError, "Value is not a string"
-        
-        if value and '://' not in value:
-            value = 'http://%s' % value
-        
-        url_re = re.compile(
-            r'^https?://' # http:// or https://
-            r'(?:(?:[A-Z0-9-]+\.)+[A-Z]{2,6}|' #domain...
-            r'localhost|' #localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-            r'(?::\d+)?' # optional port
-            r'(?:/?|/\S+)$', re.IGNORECASE)
-        
-        if re.search(url_re, value):
-            return value
-        else:
-            raise ValueError, "Enter a proper URL"
-
-    def set_data(self, xmp_packet, value):
-        """ 
-        Calls check_data() then injects the data into the XMP packet.
-        
-        :return: Boolean
-        """
-        value = self.check_data(value)
-        if xmp_packet.set_property(self.namespace, self.path, value):
-            return True               
-
-
-
-class AVMEmail( AVMString ):
-    """
-    Data type for email addresses
-    
-    :return: String
-    """       
-    def check_data(self, value):
-        """
-        Checks data against a regular expression for an email.  If value is not a string,
-        a TypeError is raised.  If the value is not a proper email, then a ValueError is raised.
-        
-        :return: String
-        """
-        if not isinstance(value, str):
-            raise TypeError, "Value is not a string" 
-        
-        email_re = re.compile(
-            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
-            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
-            r')@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}$', re.IGNORECASE
-        )
-        
-        if re.search(email_re, value):
-            return value
-        else:
-            raise ValueError, "Enter a proper email address"
-
-
-
 class AVMLocalizedString( AVMString ):
     """
     Data type for localized strings.
     (i.e. fields contained in an alt tag, such as dc:description)
     """
-    def __init__(self, ns, path, **kwargs):
-        self.namespace = ns
-        self.path = path
-                
+    def __init__(self, ns, path, **kwargs):                
         if 'generic_lang' in kwargs:
             self.generic_lang = kwargs['generic_lang']
         else:
@@ -278,6 +270,8 @@ class AVMLocalizedString( AVMString ):
             self.specific_lang = kwargs['specific_lang']
         else:
             self.specific_lang = 'x-default'
+            
+        super( AVMLocalizedString, self).__init__(ns, path)
     
     def set_data(self, xmp_packet, value):
         """
@@ -288,6 +282,8 @@ class AVMLocalizedString( AVMString ):
         value = self.check_data(value)
         if xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value):
             return True
+        else:
+            return False
     
     def get_data(self, xmp_packet):
         """
@@ -305,39 +301,53 @@ class AVMFloat( AVMData ):
     """
     def check_data(self, value):
         """
-        Checks that data is a float.  If an integer is passed, it is 
-        typecasted to a float
+        Checks that data can be represented as a number.
         
-        :return: Float
+        :return: String (UTF-8)
         """
-        if isinstance(value, int):
-            return float(value)
-        if isinstance(value, float):
-            return value
+        value = _encode_as_utf8(value)
+        
+        try:
+            float(value)
+        except:
+            raise TypeError("Enter a value that can be represented as a number.")
+        
+        return value
+
+
+class AVMDate( AVMData ):
+    """
+    Data type for Dates.
+    """
+    def check_data(self, value):
+        """
+        Checks for a Python date
+        
+        .. todo :: Implement a better way to determine class.
+        """
+        if value.__class__.__name__ == 'date':
+            return value.isoformat()
         else:
-            raise TypeError, "Value is not a float"
-    
+            raise TypeError("Date needs to be a Python date object.")
+        
     def get_data(self, xmp_packet):
         """
-        Retrieves data from an XMP packet.  The value returned is a string, so
-        typecasting is used to convert to float.
+        .todo:: Something funny happens here...
         
-        :return: Float
-        
-        .. todo:: Return a float type without typecasting 
+        :return: Python date object
         """
-        if xmp_packet.get_property(self.namespace, self.path):
-            return float(xmp_packet.get_property(self.namespace, self.path))
+        value =  xmp_packet.get_property(self.namespace, self.path)
+        if value:
+            time_value = time.strptime(value, "%Y-%m-%d")[0:3]
+            date = datetime.date(time_value[0], time_value[1], time_value[2])
+            return date
 
 
 class AVMUnorderedList( AVMData ):
     """
-    Generic data type for unordered lists (i.e xmp bag arrays)
+    Generic data type for lists (i.e xmp bag arrays)
     """
     def __init__(self, ns, path, **kwargs):
-        self.namespace = ns
-        self.path = path
-        
         # Optional keyword arguments
         if 'length' in kwargs:
             self.length = kwargs['length']
@@ -348,26 +358,12 @@ class AVMUnorderedList( AVMData ):
             self.strict_length = kwargs['strict_length']
         else:
             self.strict_length = False
-    
-    def check_data(self, values):
-        """
-        For the unordered list, the Set data type is employed to remove arbitrary duplication of data.
-        The function check_length() is called before checking the type of data.
-        
-        :return: Set
-        """
-        # Check length
-        if self.check_length(values):
-            pass
-        
-        if isinstance(values, set):
-            return values
-        else:
-            raise TypeError, "Data needs to be a Python List"
-        
+            
+        super( AVMUnorderedList, self).__init__(ns, path)
+
     def check_length(self, values):
         """ 
-        Checks the length of the data type.
+        Checks the length of the Python List.
         
         :return: Boolean 
         """
@@ -375,34 +371,67 @@ class AVMUnorderedList( AVMData ):
             if len(values) is self.length:
                 return True
             else:
-                raise AVMListLengthError, "Data is not of the correct length"
+                return False
         elif self.length:
             if len(values) <= self.length:
                 return True
             else:
-                raise AVMListLengthError, "Data exceeds the maximum allowed length"
+                return False
         else:
             return True
+
+    def check_data(self, values):
+        """
+        Checks that the data type is a Python List.  Calls check_length() first.
+        
+        .. todo :: Redo this function.  Implement the dash functionality only for ordered lists.
+        
+        :return: List (UTF-8 elements)
+        """
+        # Check data type
+        if not isinstance(values, list):
+            raise TypeError("Data needs to be a Python List.")
+        
+        # Check length
+        if not self.check_length(values):
+            raise AVMListLengthError("Data is not the correct length.")
+        
+        # Convert to UTF-8
+        checked_data = []
+        length = 0
+        
+        for value in values:
+            value = _encode_as_utf8(value)
+            length += len(value)
+            if value is "":
+                value = "-"
+            checked_data.append(value)
+        
+        if length is 0:
+            raise AVMEmptyValueError("Make sure to enter data into the elements.") 
+        return checked_data
+
 
     def set_data(self, xmp_packet, values):
         """
         After checking length and type, inject the data to the XMP packet.
+        This function replaces the existing data; it is not meant to append values.
         
         :return: Boolean
         """
+        # Check data type and length
         values = self.check_data(values)
         
-        # Delete previous data if strict length is required
-        if self.strict_length:
-            self.delete_data(xmp_packet)
+        # Delete the data for replacement
+        self.delete_data(xmp_packet)
         
         arr_options = {
             'prop_value_is_array': True,
         }
         
         for value in values:
-            if xmp_packet.append_array_item(self.namespace, self.path, str(value), arr_options):
-                pass
+            if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
+                continue
             else:
                 return False
             
@@ -412,7 +441,7 @@ class AVMUnorderedList( AVMData ):
         """
         Extract data from XMP packet
         
-        :return: Set if array items exist
+        :return: List (UTF-8 elements) or None if array does not have any elements
         """
         num_items = xmp_packet.count_array_items(self.namespace, self.path)
         
@@ -421,40 +450,41 @@ class AVMUnorderedList( AVMData ):
         
         num_items += 1
         
-        items = set()
+        items = []
         for i in range(1, num_items):
-            item = str(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
-            items.add(item)
+            item = _encode_as_utf8(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
+            items.append(item)
             
         return items
 
 
-class AVMUnorderedStringList( AVMUnorderedList, AVMString ):
+class AVMUnorderedStringList( AVMUnorderedList ):
     """
-    Data type for an unordered set of strings
+    Data type for an unordered list of strings
     """
     def check_data(self, values):
         """
-        Check that the passed data is of type Set, and checks that the data
-        inside of the set are strings.
+        Check that the passed data is a Python List, and checks that the elements
+        are strings or unicode.
         
-        :return: Set
+        :return: List of strings (UTF-8)
         """
         # Check that data is a list
-        if not isinstance(values, set):
-            raise TypeError, "Data needs to be a Python Set"
+        if not isinstance(values, list):
+            raise TypeError("Data needs to be a Python List.")
         
         # Check length
-        if self.check_length(values):
-            pass
+        if not self.check_length(values):
+            raise AVMListLengthError("Data is not the correct length.")
         
-        checked_data = set()
+        checked_data = []
         # Check data type in list
         for value in values:
-            if isinstance(value, str):
-                checked_data.add(value)
+            if (isinstance(value, str) or isinstance(value, unicode)):
+                value =  _encode_as_utf8(value)
+                checked_data.append(value)
             else:
-                raise TypeError, "Data needs to be of type string"
+                raise TypeError("Elements of list need to be string or unicode.")
         
         return checked_data
 
@@ -471,9 +501,8 @@ class AVMOrderedList( AVMUnorderedList ):
         """
         values = self.check_data(values)
         
-        # Delete previous data if strict length is required
-        if self.strict_length:
-            self.delete_data(xmp_packet)
+        # Delete the data for replacement
+        self.delete_data(xmp_packet)
         
         arr_options= {
             'prop_value_is_array': True,
@@ -481,68 +510,19 @@ class AVMOrderedList( AVMUnorderedList ):
         }
         
         for value in values:
-            if xmp_packet.append_array_item(self.namespace, self.path, str(value), arr_options):
-                pass
+            if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
+                continue
             else:
                 return False
-        
         return True
 
 
-class AVMOrderedStringList( AVMOrderedList, AVMString ):
+class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
     """
-    Data type for an ordered list comprising of strings 
-    """
-    def check_data(self, values):
-        """
-        Checks that data is a list, and checks that the elements are strings.
-        
-        :return: List
-        """
-        # Check that data is a list
-        if not isinstance(values, list):
-            raise TypeError, "Data needs to be a Python List"
-        
-        # Check length
-        if self.check_length(values):
-            pass
-        
-        checked_data = []
-        
-        # Check data type in list
-        for value in values:
-            if isinstance(value, str):
-                checked_data.append(value)
-            else:
-                raise TypeError, "Data needs to be of type string"
-        
-        return checked_data
-    
-    def get_data(self, xmp_packet):
-        """
-        Extracts data from the XMP packet.
-        
-        :return: Set
-        """
-        num_items = xmp_packet.count_array_items(self.namespace, self.path)
-        
-        if num_items is 0:
-            return None
-        
-        num_items += 1
-        
-        items = []
-        for i in range(1, num_items):
-            item = str(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
-            items.append(item)
-            
-        return items
-
-class AVMOrderedStringListCV( AVMOrderedStringList, AVMStringCVCapitalize):
-    """
-    Data type for an ordered string list constrained to a controlled vocabulary.
+    Data type for an ordered list constrained to a controlled vocabulary.
     """
     def __init__(self, ns, path, cv, **kwargs):
+        
         self.namespace = ns
         self.path = path
         self.controlled_vocabulary = cv
@@ -562,109 +542,109 @@ class AVMOrderedStringListCV( AVMOrderedStringList, AVMStringCVCapitalize):
         """
         Checks that the data is a list, elements are strings, and strings are in the specified controlled vocabulary.
         
-        :return: List
+        :return: List of CV-Strings (UTF-8)
         """
         # Check that data is a list
         if not isinstance(values, list):
-            raise TypeError, "Data needs to be a Python List"
+            raise TypeError("Data needs to be a Python List.")
         
         # Check length
-        if self.check_length(values):
-            pass
+        if not self.check_length(values):
+            raise AVMListLengthError("List is not the correct length.")
         
         checked_data = []
-        
+        length = 0
         # Check data type in list
         for value in values:
-            if isinstance(value, str):
+            if (isinstance(value, str) or isinstance(value, unicode)):
+                value =  _encode_as_utf8(value)
                 value = self.format_data(value)
                 
                 if self.check_cv(value):
                     checked_data.append(value)
                 else:
-                    raise AVMItemNotInControlledVocabularyError
+                    raise AVMItemNotInControlledVocabularyError("Item is not in the controlled vocabulary.")
             else:
-                raise TypeError, "Data needs to be of type string"
+                raise TypeError("Elements of list need to be string or unicode.")
         
         return checked_data
         
 
 class AVMOrderedFloatList( AVMOrderedList ):
     """
-    Data type for an ordered list of floats.
+    Data type for ordered lists of floats.
     """    
     def check_data(self, values):
         """
         Checks that the data is of the correct type, length and elements
-        are floats.  If integers are passed, then they become typecasted
-        to floats.
+        are strings able to be represented as floats.
         
-        :return: Float
+        :return: List of strings (UTF-8)
         """
         # Check type for list
         if not isinstance(values, list):
-            raise TypeError, "Data needs to be a list"
+            raise TypeError("Data needs to be a list.")
         
         # Check length
-        if self.check_length(values):
-            pass
+        if not self.check_length(values):
+            raise AVMListLengthError("Data is not the correct length.")
         
         checked_data = []
         # Check data type in list
         for value in values:
-            if isinstance(value, int):
-                value = float(value)
-            if isinstance(value, float):
+            value = _encode_as_utf8(value)
+            try:
+                float(value)
                 checked_data.append(value)
-            else:
-                raise TypeError, "Data needs to be of type float"
-        
+            except:
+                raise TypeError("Enter a string that can be represented as a number.")
         return checked_data
 
-    
+        
+class AVMDateTimeList( AVMOrderedList ):
+    """ 
+    Data type for lists composed of DateTime objects
+    """
+    def check_data(self, values):
+        """
+        Checks that the data passed is a Python List,
+        and that the elements are Date or Datetime objects.
+        
+        :return: List of Datetime objects in ISO format (i.e. Strings encoded as UTF-8)
+        """
+        if not isinstance(values, list):
+            raise TypeError("Data needs to be a list.")
+        
+        if not self.check_length(values):
+            raise AVMListLengthError("Data is not the correct length.")
+        
+        checked_data = []
+        # Check data type in list
+        for value in values:
+            if ( isinstance( value, datetime.date ) or isinstance( value, datetime.datetime ) ):
+                value = _encode_as_utf8( value.isoformat() )
+                checked_data.append( value )
+            else:
+                raise TypeError("Elements of the list need to be a Python Date or Datetime object.")                
+        
+        return checked_data
+        
     def get_data(self, xmp_packet):
         """
-        Retrieves data from XMP packet
+        Extract data from XMP packet
         
-        :return: List of floats
+        :return: List of Python Datetime elements or None if array does not have any elements
         """
         num_items = xmp_packet.count_array_items(self.namespace, self.path)
         
         if num_items is 0:
             return None
         
+        num_items += 1
+        
         items = []
-        for i in range(1, num_items+1):
-            try:
-                item = float(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
-            except:
-                item = xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0]
+        for i in range(1, num_items):
+            item = parser.parse(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
             items.append(item)
             
         return items
-
-
-class AVMDate( AVMData ):
-    """
-    Data type for Dates
-    
-    :return: An AVM validated Python date.
-    """
-    def check_data(self, value):
-        """
-        Checks for a Python date
-        """
-        if isinstance(value, datetime.date):
-            return value
-        else:
-            raise TypeError, "Date needs to be a Python date object"
-        
-    def get_data(self, xmp_packet):
-        """
-        Returns a Python date object
-        """
-        value =  xmp_packet.get_property(self.namespace, self.path)
-        if value:
-            time_value = time.strptime(value, "%Y-%m-%d")[0:3]
-            date = datetime.date(time_value[0], time_value[1], time_value[2])
-            return date
