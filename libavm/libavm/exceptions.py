@@ -36,3 +36,7 @@ class AVMListLengthError(Exception):
 class AVMItemNotInControlledVocabularyError(Exception):
     """ Raise when an string is not in a required controlled vocabulary """
     pass 
+
+class AVMEmptyValueError(Exception):
+    """ Raise when a list is given with no relevant data """
+    pass

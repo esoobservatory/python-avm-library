@@ -38,7 +38,11 @@ except ImportError:
 
 __all__ = ['avm_from_file', 'avm_to_file']
 
-def avm_from_file(file_path):
+#
+# Easy read/write functions 
+#
+
+def avm_from_file( file_path ):
 	"""
 	Function to retrieve the XMP packet from a file
 	
@@ -58,7 +62,7 @@ def avm_from_file(file_path):
 	avm = libavm.AVMMeta(xmp=xmp)
 	return avm.data
 
-def avm_to_file(file_path, dict={}, replace=False):
+def avm_to_file( file_path, dict={}, replace=False ):
 	"""
 	Function to inject AVM into a file.  Preserves existing XMP in the file, while replacing
 	fields passed through dict.
@@ -99,9 +103,3 @@ def avm_to_file(file_path, dict={}, replace=False):
 		return True
 	else:
 		return False
-	
-	
-	
-	
-	
-	

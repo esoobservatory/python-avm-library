@@ -52,10 +52,9 @@ SPECS_1_1 = {
     # Creator Metadata
     'Creator' : AVMString(XMP_NS_Photoshop, 'photoshop:Source'),
     'CreatorURL': AVMURL(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
-    'Contact.Name': AVMOrderedStringList(XMP_NS_DC, 'dc:creator'),
+    'Contact.Name': AVMOrderedList(XMP_NS_DC, 'dc:creator'),
     'Contact.Email': AVMEmail(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiEmailWork'),
     'Contact.Telephone': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiTelWork'),
-    'Contact.Address': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr'),
     'Contact.City': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCity'),
     'Contact.StateProvince': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrRegion'),
     'Contact.PostalCode': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrPcode'),
@@ -78,16 +77,16 @@ SPECS_1_1 = {
     'Image.ProductQuality': AVMStringCVCapitalize(XMP_NS_AVM, 'avm:Image.ProductQuality', IMAGE_PRODUCT_QUALITY_CHOICES),
     
     # Observation Metadata
-    'Facility': AVMOrderedStringList(XMP_NS_AVM, 'avm:Facility'),
-    'Instrument': AVMOrderedStringList(XMP_NS_AVM, 'avm:Instrument'),
-    'Spectral.ColorAssignment': AVMOrderedStringListCV(XMP_NS_AVM, 'avm:Spectral.ColorAssignment', SPECTRAL_COLOR_ASSIGNMENT_CHOICES),
-    'Spectral.Band': AVMOrderedStringListCV(XMP_NS_AVM, 'avm:Spectral.Band', SPECTRAL_BAND_CHOICES),
-    'Spectral.Bandpass': AVMOrderedStringList(XMP_NS_AVM, 'avm:Spectral.Bandpass'),
+    'Facility': AVMOrderedList(XMP_NS_AVM, 'avm:Facility'),
+    'Instrument': AVMOrderedList(XMP_NS_AVM, 'avm:Instrument'),
+    'Spectral.ColorAssignment': AVMOrderedListCV(XMP_NS_AVM, 'avm:Spectral.ColorAssignment', SPECTRAL_COLOR_ASSIGNMENT_CHOICES),
+    'Spectral.Band': AVMOrderedListCV(XMP_NS_AVM, 'avm:Spectral.Band', SPECTRAL_BAND_CHOICES),
+    'Spectral.Bandpass': AVMOrderedList(XMP_NS_AVM, 'avm:Spectral.Bandpass'),
     'Spectral.CentralWavelength': AVMOrderedFloatList(XMP_NS_AVM, 'avm:Spectral.CentralWavelength'),
     'Spectral.Notes': AVMLocalizedString(XMP_NS_AVM, 'avm:Spectral.Notes'),
-    'Temporal.StartTime': AVMOrderedFloatList(XMP_NS_AVM, 'avm:Temporal.StartTime'),
+    'Temporal.StartTime': AVMDateTimeList(XMP_NS_AVM, 'avm:Temporal.StartTime'),
     'Temporal.IntegrationTime': AVMOrderedFloatList(XMP_NS_AVM, 'avm:Temporal.IntegrationTime'),
-    'DatasetID': AVMOrderedStringList(XMP_NS_AVM, 'avm:DatasetID'),
+    'DatasetID': AVMOrderedList(XMP_NS_AVM, 'avm:DatasetID'),
     
     # Coordinate Metadata
     'Spatial.CoordinateFrame': AVMStringCVUpper(XMP_NS_AVM, 'avm:Spatial.CoordinateFrame', SPATIAL_COORDINATE_FRAME_CHOICES),

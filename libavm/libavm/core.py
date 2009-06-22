@@ -57,12 +57,12 @@ class AVMMeta(object):
 	def __init__(self, avm_dict=None, xmp=None, version="1.1"):
 		# Dictionary storage for AVM, synchronizes with the XMP packet
 		self.data = {}
-		
+		# Create an XMPMeta object
+		self.xmp = libxmp.XMPMeta()
+				
 		# Check the version type
 		if version == "1.1":
 			self.specs = SPECS_1_1
-		
-		self.xmp = libxmp.XMPMeta()
 		
 		# Register all avm schema
 		for SCHEMA, PREFIX in AVM_SCHEMAS.items():
