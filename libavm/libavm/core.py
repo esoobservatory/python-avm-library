@@ -115,5 +115,17 @@ class AVMMeta(object):
 		if key in self.specs:
 			avmdt = self.specs[key]
 			avmdt.delete_data(self.xmp)
+			
+	def to_sql(self, key):
+		"""
+		Method to decompress data to a SQL-friendly string.
+		
+		:return: String (UTF-8)
+		"""
+		if key in self.specs:
+			avmdt = self.specs[key]
+			return avmdt.to_sql(self.xmp)
+		else:
+			raise KeyError, "The key '%s' is not an AVM field" % key
 
 
