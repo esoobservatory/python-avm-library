@@ -36,7 +36,7 @@ try:
 except ImportError:
 	pass
 
-__all__ = ['avm_from_file', 'avm_to_file']
+__all__ = ['avm_from_file', 'avm_obj_from_file', 'avm_to_file']
 
 #
 # Easy read/write functions 
@@ -61,6 +61,27 @@ def avm_from_file( file_path ):
 	
 	avm = libavm.AVMMeta(xmp=xmp)
 	return avm.data
+
+
+def avm_obj_from_file( file_path ):
+	"""
+	Function to retrieve the XMP packet from a file
+	
+	:param file_path: Path to file
+	
+	:return: A dictionary with AVM data
+	"""
+	xmpfile = libxmp.files.XMPFiles()
+	
+	try:
+		xmpfile.open_file(file_path, open_option=libxmp.files.XMP_OPEN_READ)
+		xmp = xmpfile.get_xmp()
+		xmpfile.close_file()
+	except libxmp.XMPError:
+		return {}
+	
+	avm = libavm.AVMMeta(xmp=xmp)
+	return avm
 
 def avm_to_file( file_path, dict={}, replace=False ):
 	"""

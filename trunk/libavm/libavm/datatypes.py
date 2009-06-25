@@ -105,6 +105,17 @@ class AVMData( object ):
         Deletes data from an XMP packet.  Should be overridden when appropriate.
         """
         xmp_packet.delete_property(self.namespace, self.path)
+    
+    def to_sql(self, xmp_packet):
+        """
+        Method to retrieve data from an XMP packet in a SQL-friendly string format.
+        
+        :return: String (UTF-8)
+        """
+        if self.get_data(xmp_packet):
+            return self.get_data(xmp_packet)
+        else:
+            return ''        
 
 
 
@@ -342,6 +353,18 @@ class AVMDate( AVMData ):
             date = datetime.date(time_value[0], time_value[1], time_value[2])
             return date
 
+    def to_sql(self, xmp_packet):
+        """
+        Method to retrieve data from an XMP packet in a SQL-friendly string format.
+        
+        :return: String (UTF-8)
+        """
+        if self.get_data(xmp_packet):
+            data = self.get_data(xmp_packet)
+            return data.isoformat()
+        else:
+            return ''
+
 
 class AVMUnorderedList( AVMData ):
     """
@@ -456,6 +479,18 @@ class AVMUnorderedList( AVMData ):
             items.append(item)
             
         return items
+
+    def to_sql(self, xmp_packet):
+        """
+        Method to retrieve data from an XMP packet in a SQL-friendly string format.
+        
+        :return: String (UTF-8)
+        """
+        if self.get_data(xmp_packet):
+            data = self.get_data(xmp_packet)
+            return ';'.join(data)
+        else:
+            return ''
 
 
 class AVMUnorderedStringList( AVMUnorderedList ):
@@ -648,3 +683,19 @@ class AVMDateTimeList( AVMOrderedList ):
             items.append(item)
             
         return items
+
+    def to_sql(self, xmp_packet):
+        """
+        Method to retrieve data from an XMP packet in a SQL-friendly string format.
+        
+        :return: String (UTF-8)
+        """
+        data = self.get_data(xmp_packet)
+        if data:
+            tmp_data = []
+            for item in data:
+                tmp_data.append(item.isoformat())
+            
+            return ';'.join(tmp_data)
+        else:
+            return ''
