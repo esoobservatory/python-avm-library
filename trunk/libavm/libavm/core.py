@@ -78,7 +78,11 @@ class AVMMeta(object):
 			# Synchronize XMP data with dictionary
 			for key, value in self.specs.items():
 				avmdt = self.specs[key]
-				self.data[key] = avmdt.get_data(self.xmp)
+				try:
+					if avmdt.get_data(self.xmp):
+						self.data[key] = avmdt.get_data(self.xmp)
+				except:
+					continue
 				
 		# Pass an AVM dictionary
 		if avm_dict:
