@@ -78,7 +78,7 @@ def avm_obj_from_file( file_path ):
 		xmp = xmpfile.get_xmp()
 		xmpfile.close_file()
 	except libxmp.XMPError:
-		return {}
+		return None
 	
 	avm = libavm.AVMMeta(xmp=xmp)
 	return avm
