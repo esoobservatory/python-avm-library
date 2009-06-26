@@ -430,8 +430,8 @@ class AVMUnorderedList( AVMData ):
                 value = "-"
             checked_data.append(value)
         
-        if length is 0:
-            raise AVMEmptyValueError("Make sure to enter data into the elements.") 
+#        if length is 0:
+#            raise AVMEmptyValueError("Make sure to enter data into the elements.") 
         return checked_data
 
 
