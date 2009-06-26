@@ -54,6 +54,7 @@ SPECS_1_1 = {
     'CreatorURL': AVMURL(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
     'Contact.Name': AVMOrderedList(XMP_NS_DC, 'dc:creator'),
     'Contact.Email': AVMEmail(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiEmailWork'),
+    'Contact.Address': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr'),
     'Contact.Telephone': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiTelWork'),
     'Contact.City': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCity'),
     'Contact.StateProvince': AVMString(XMP_NS_IPTCCore, 'Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrRegion'),
