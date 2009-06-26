@@ -67,9 +67,6 @@ class AVMMeta(object):
 		# Register all avm schema
 		for SCHEMA, PREFIX in AVM_SCHEMAS.items():
 			self.xmp.register_namespace(SCHEMA, PREFIX)
-			
-		# Impose the current date as the metadata date
-		self['MetadataDate'] = datetime.date.today()
 		
 		# Pass an XMPMeta object
 		if xmp:
