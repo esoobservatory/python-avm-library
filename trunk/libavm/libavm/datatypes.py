@@ -452,7 +452,7 @@ class AVMUnorderedList( AVMData ):
         
         :return: Boolean
         """
-        if value is None:
+        if values is None:
             self.delete_data(xmp_packet)
             return True
         
@@ -549,7 +549,7 @@ class AVMOrderedList( AVMUnorderedList ):
         
         :return: Boolean
         """
-        if value is None:
+        if values is None:
             self.delete_data(xmp_packet)
             return True
         
