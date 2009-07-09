@@ -83,7 +83,7 @@ class AVMMeta(object):
 				
 		# Pass an AVM dictionary
 		if avm_dict:
-			for key, item in avm_dict.items():
+			for key, item in avm_dict.iteritems():
 				try:
 					self[key] = item
 				except:
@@ -112,8 +112,10 @@ class AVMMeta(object):
 		if key in self.specs:
 			avmdt = self.specs[key]
 			avmdt.delete_data(self.xmp)
+	
 			
-	def to_sql(self, key):
+	
+	def to_string(self, key):
 		"""
 		Method to decompress data to a SQL-friendly string.
 		
@@ -121,7 +123,7 @@ class AVMMeta(object):
 		"""
 		if key in self.specs:
 			avmdt = self.specs[key]
-			return avmdt.to_sql(self.xmp)
+			return avmdt.to_string(self.xmp)
 		else:
 			raise KeyError, "The key '%s' is not an AVM field" % key
 

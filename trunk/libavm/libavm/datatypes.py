@@ -84,6 +84,10 @@ class AVMData( object ):
         
         :return: Boolean
         """
+        if value is None:
+            self.delete_data(xmp_packet)
+            return True
+        
         value = self.check_data(value)
         if xmp_packet.set_property(self.namespace, self.path, value):
             return True
@@ -106,7 +110,7 @@ class AVMData( object ):
         """
         xmp_packet.delete_property(self.namespace, self.path)
     
-    def to_sql(self, xmp_packet):
+    def to_string(self, xmp_packet):
         """
         Method to retrieve data from an XMP packet in a SQL-friendly string format.
         
@@ -114,8 +118,6 @@ class AVMData( object ):
         """
         if self.get_data(xmp_packet):
             return self.get_data(xmp_packet)
-        else:
-            return ''        
 
 
 
@@ -290,6 +292,10 @@ class AVMLocalizedString( AVMString ):
         
         :return: Boolean
         """
+        if value is None:
+            self.delete_data(xmp_packet)
+            return True
+        
         value = self.check_data(value)
         if xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value):
             return True
@@ -349,11 +355,14 @@ class AVMDate( AVMData ):
         """
         value =  xmp_packet.get_property(self.namespace, self.path)
         if value:
-            time_value = time.strptime(value, "%Y-%m-%d")[0:3]
-            date = datetime.date(time_value[0], time_value[1], time_value[2])
-            return date
+            try:
+                time_value = time.strptime(value, "%Y-%m-%d")[0:3]
+                date = datetime.date(time_value[0], time_value[1], time_value[2])
+                return date
+            except:
+                return value
 
-    def to_sql(self, xmp_packet):
+    def to_string(self, xmp_packet):
         """
         Method to retrieve data from an XMP packet in a SQL-friendly string format.
         
@@ -361,9 +370,10 @@ class AVMDate( AVMData ):
         """
         if self.get_data(xmp_packet):
             data = self.get_data(xmp_packet)
-            return data.isoformat()
-        else:
-            return ''
+            try:
+                return data.isoformat()
+            except:
+                return data
 
 
 class AVMUnorderedList( AVMData ):
@@ -442,6 +452,10 @@ class AVMUnorderedList( AVMData ):
         
         :return: Boolean
         """
+        if value is None:
+            self.delete_data(xmp_packet)
+            return True
+        
         # Check data type and length
         values = self.check_data(values)
         
@@ -480,7 +494,7 @@ class AVMUnorderedList( AVMData ):
             
         return items
 
-    def to_sql(self, xmp_packet):
+    def to_string(self, xmp_packet):
         """
         Method to retrieve data from an XMP packet in a SQL-friendly string format.
         
@@ -488,9 +502,10 @@ class AVMUnorderedList( AVMData ):
         """
         if self.get_data(xmp_packet):
             data = self.get_data(xmp_packet)
-            return ';'.join(data)
-        else:
-            return ''
+            try:
+                return ';'.join(data)
+            except:
+                return data
 
 
 class AVMUnorderedStringList( AVMUnorderedList ):
@@ -534,6 +549,10 @@ class AVMOrderedList( AVMUnorderedList ):
         
         :return: Boolean
         """
+        if value is None:
+            self.delete_data(xmp_packet)
+            return True
+        
         values = self.check_data(values)
         
         # Delete the data for replacement
@@ -684,18 +703,18 @@ class AVMDateTimeList( AVMOrderedList ):
             
         return items
 
-    def to_sql(self, xmp_packet):
+    def to_string(self, xmp_packet):
         """
         Method to retrieve data from an XMP packet in a SQL-friendly string format.
         
         :return: String (UTF-8)
         """
-        data = self.get_data(xmp_packet)
-        if data:
-            tmp_data = []
-            for item in data:
-                tmp_data.append(item.isoformat())
-            
-            return ';'.join(tmp_data)
-        else:
-            return ''
+        if self.get_data(xmp_packet):
+            data = self.get_data(xmp_packet)
+            try:
+                tmp_data = []
+                for item in data:
+                    tmp_data.append(item.isoformat())
+                return ';'.join(tmp_data)
+            except:
+                return data
