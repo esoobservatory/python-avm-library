@@ -72,7 +72,7 @@ SPECS_1_1 = {
     'Distance.Notes': AVMString(XMP_NS_AVM, 'avm:Distance.Notes'),
     'ReferenceURL': AVMURL(XMP_NS_AVM, 'avm:ReferenceURL'),
     'Credit': AVMString(XMP_NS_Photoshop, 'photoshop:Credit'),
-    'Date': AVMDate(XMP_NS_Photoshop, 'photoshop:DateCreated'),
+    'Date': AVMDateTime(XMP_NS_Photoshop, 'photoshop:DateCreated'),
     'ID': AVMString(XMP_NS_AVM, 'avm:ID'),
     'Type': AVMStringCVCapitalize(XMP_NS_AVM, 'avm:Type', TYPE_CHOICES),
     'Image.ProductQuality': AVMStringCVCapitalize(XMP_NS_AVM, 'avm:Image.ProductQuality', IMAGE_PRODUCT_QUALITY_CHOICES),
@@ -101,7 +101,7 @@ SPECS_1_1 = {
     'Spatial.Quality': AVMStringCVCapitalize(XMP_NS_AVM, 'avm:Spatial.Quality', SPATIAL_QUALITY_CHOICES),
     'Spatial.Notes': AVMLocalizedString(XMP_NS_AVM, 'avm:Spatial.Notes'),
     'Spatial.FITSheader': AVMString(XMP_NS_AVM, 'avm:Spatial.FITSheader'),
-    'Spatial.CDMatrix': AVMOrderedFloatList(XMP_NS_AVM, 'avm:Spatial.CDMatrix', length=4, strict_length=True),
+    'Spatial.CDMatrix': AVMOrderedFloatList(XMP_NS_AVM, 'avm:Spatial.CDMatrix', length=4, strict_length=True, deprecated=True),
     
     # Publisher Metadata
     'Publisher': AVMString(XMP_NS_AVM, 'avm:Publisher'),
@@ -109,10 +109,12 @@ SPECS_1_1 = {
     'ResourceID': AVMString(XMP_NS_AVM, 'avm:ResourceID'),
     'ResourceURL': AVMURL(XMP_NS_AVM, 'avm:ResourceURL'),
     'RelatedResources': AVMUnorderedStringList(XMP_NS_AVM, 'avm:RelatedResources'),
-    'MetadataDate': AVMDate(XMP_NS_AVM, 'avm:MetadataDate'),
+    'MetadataDate': AVMDateTime(XMP_NS_AVM, 'avm:MetadataDate'),
     'MetadataVersion': AVMFloat(XMP_NS_AVM, 'avm:MetadataVersion'),
 }
     
-
-
-SPECS_1_0 = {}
+SPECS_1_2 = SPECS_1_1
+# Content Metadata
+SPECS_1_2['PublicationID'] = AVMUnorderedStringList(XMP_NS_AVM, 'avm:PublicationID')
+SPECS_1_2['ProposalID'] = AVMUnorderedStringList(XMP_NS_AVM, 'avm:ProposalID')
+SPECS_1_2["RelatedResources"] = AVMUnorderedStringList(XMP_NS_AVM, 'avm:RelatedResources', deprecated=True)
