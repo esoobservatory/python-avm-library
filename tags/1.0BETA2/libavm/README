@@ -1,0 +1,11 @@
+Python AVM Library is a library for working with Astronomy Visualization Metadata (AVM) in the XMP format.
+
+Python AVM Library is a wrapper around the Python XMP Toolkit, providing simple access to AVM-specific
+fields.
+
+Python AVM Library has been developed by: 
+ * ESA/Hubble - European Space Agency 
+ * ESO - European Southern Observatory
+
+Additional documentation is included in the docs/ directory in both HTML and
+PDF versions.
