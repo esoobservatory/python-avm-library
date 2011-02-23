@@ -748,11 +748,17 @@ class AVMDateTimeList( AVMOrderedList ):
 		checked_data = []
 		# Check data type in list
 		for value in values:
-			if ( isinstance( value, datetime.date ) or isinstance( value, datetime.datetime ) ):
-				value = _encode_as_utf8( value.isoformat() )
-				checked_data.append( value )
+			if value:
+				if ( isinstance( value, datetime.date ) or isinstance( value, datetime.datetime ) ):
+					value = _encode_as_utf8( value.isoformat() )
+					checked_data.append( value )
+				else:
+					raise TypeError("Elements of the list need to be a Python Date or Datetime object.")				
 			else:
-				raise TypeError("Elements of the list need to be a Python Date or Datetime object.")				
+				checked_data.append( "-" )
+		
+		if len(set(checked_data)) == 1 and checked_data[0] == "-": 
+			checked_data = []
 		
 		return checked_data
 		
