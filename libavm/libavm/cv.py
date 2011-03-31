@@ -59,7 +59,8 @@ SPECTRAL_COLOR_ASSIGNMENT_CHOICES = [
     'Red',
     'Magenta',
     'Grayscale',
-    'Pseudocolor'
+    'Pseudocolor',
+    'Luminosity',
 ]
 
 SPECTRAL_BAND_CHOICES = [
@@ -101,6 +102,7 @@ SPATIAL_QUALITY_CHOICES = [
 ]
 
 METADATA_VERSION_CHOICES = [
+	1.2,
     1.1,
     1.0,
 ] 

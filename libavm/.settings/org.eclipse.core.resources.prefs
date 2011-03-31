@@ -1,4 +1,13 @@
-#Wed Feb 23 17:11:50 CET 2011
+#Wed Mar 30 15:59:27 CEST 2011
 eclipse.preferences.version=1
+encoding//libavm/__init__.py=utf-8
+encoding//libavm/core.py=utf-8
+encoding//libavm/cv.py=utf-8
 encoding//libavm/datatypes.py=utf-8
+encoding//libavm/exceptions.py=utf-8
+encoding//libavm/specs.py=utf-8
+encoding//libavm/utils.py=utf-8
+encoding//test/test_core.py=utf-8
+encoding//test/test_datatypes.py=utf-8
+encoding//test/test_utils.py=utf-8
 encoding/setup.py=utf-8
