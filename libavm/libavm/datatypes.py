@@ -70,25 +70,25 @@ def _encode_as_utf8(obj, input_encoding=None):
     """
 	# Python 3 support: unicode is now str, and we have the new type bytes
 	# See: https://python-gtk-3-tutorial.readthedocs.io/en/latest/unicode.html#python-2
-    if sys.version_info[0] >= 3:
-        if isinstance(obj, bytes):
-            return obj.decode()
-        else:
-            return obj
+	if sys.version_info[0] >= 3:
+		if isinstance(obj, bytes):
+			return obj.decode()
+		else:
+			return obj
 
 	if sys.hexversion >= 0x03000000:
-        obj = obj.encode()
-        return obj
+		obj = obj.encode()
+		return obj
 
-    if isinstance( obj, unicode ):
-        return obj.encode('utf-8')
-    elif isinstance( obj, str ):
-        if not input_encoding or input_encoding == 'utf-8':
-            return obj
-        else:
-            return obj.decode(input_encoding).encode('utf-8')
-    else:
-        return unicode( obj ).encode('utf-8')
+	if isinstance( obj, unicode ):
+		return obj.encode('utf-8')
+	elif isinstance( obj, str ):
+		if not input_encoding or input_encoding == 'utf-8':
+			return obj
+		else:
+			return obj.decode(input_encoding).encode('utf-8')
+	else:
+		return unicode( obj ).encode('utf-8')
 
 
 class AVMData( object ):
