@@ -59,6 +59,9 @@ __all__ = [
 	'AVMDateTimeList',
 ]
 
+# Upgrade to python 3
+if sys.version_info[0] >= 3:
+	unicode = str
 
 # This function was removed from libxmp
 # See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
