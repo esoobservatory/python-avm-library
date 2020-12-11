@@ -58,5 +58,8 @@ setup(
 	long_description='A module for parsing, manipulating, and serializing Astronomy Visualization Metadata in the XMP format. ',
 	license='New BSD License',
 	packages=['libavm'],
-	install_requires=['future']
+	install_requires=[
+		'python-xmp-toolkit == 2.0.1',
+		'future'
+	]
 )

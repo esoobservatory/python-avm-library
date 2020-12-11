@@ -38,7 +38,6 @@ import time
 import datetime
 from dateutil import parser
 
-from libxmp.core import _encode_as_utf8
 from libavm.exceptions import *
 
 
@@ -58,6 +57,27 @@ __all__ = [
 	'AVMDateTime',
 	'AVMDateTimeList',
 ]
+
+
+def _encode_as_utf8( obj, input_encoding=None ):
+    """
+    Helper function to ensure that a proper string object in UTF-8 encoding.
+    If obj is not a string, it will try to convert the object into a unicode
+    string and thereafter encode as UTF-8.
+    """
+    if sys.hexversion >= 0x03000000:
+        obj = obj.encode()
+        return obj
+
+    if isinstance( obj, unicode ):
+        return obj.encode('utf-8')
+    elif isinstance( obj, str ):
+        if not input_encoding or input_encoding == 'utf-8':
+            return obj
+        else:
+            return obj.decode(input_encoding).encode('utf-8')
+    else:
+        return unicode( obj ).encode('utf-8')
 
 
 class AVMData( object ):
