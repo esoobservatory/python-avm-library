@@ -5,19 +5,19 @@
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #	  * Redistributions of source code must retain the above copyright
 #		notice, this list of conditions and the following disclaimer.
-# 
+#
 #	  * Redistributions in binary form must reproduce the above copyright
 #		notice, this list of conditions and the following disclaimer in the
 #		documentation and/or other materials provided with the distribution.
-# 
-#	  * Neither the name of the European Space Agency, European Southern 
-#		Observatory nor the names of its contributors may be used to endorse or 
-#		promote products derived from this software without specific prior 
+#
+#	  * Neither the name of the European Space Agency, European Southern
+#		Observatory nor the names of its contributors may be used to endorse or
+#		promote products derived from this software without specific prior
 #		written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY ESA/ESO ``AS IS'' AND ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -62,7 +62,7 @@ __all__ = [
 
 # This method was removed from libxmp
 # See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
-def _encode_as_utf8( obj, input_encoding=None ):
+def _encode_as_utf8(obj, input_encoding=None):
 	"""
     Helper function to ensure that a proper string object in UTF-8 encoding.
     If obj is not a string, it will try to convert the object into a unicode
@@ -70,12 +70,12 @@ def _encode_as_utf8( obj, input_encoding=None ):
     """
 	# Python 3 support: unicode is now str, and we have the new type bytes
 	# See: https://python-gtk-3-tutorial.readthedocs.io/en/latest/unicode.html#python-2
-	if sys.version_info[0] >= 3:
-		if isinstance(obj, bytes):
-    		return obj.decode()
-		else:
-			return obj
-    
+    if sys.version_info[0] >= 3:
+        if isinstance(obj, bytes):
+            return obj.decode()
+        else:
+            return obj
+
 	if sys.hexversion >= 0x03000000:
         obj = obj.encode()
         return obj
