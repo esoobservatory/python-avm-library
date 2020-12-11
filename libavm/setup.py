@@ -59,7 +59,8 @@ setup(
 	license='New BSD License',
 	packages=['libavm'],
 	install_requires=[
-		'python-xmp-toolkit == 2.0.1',
+		# python-xmp-toolkit == 2.0.1 or newer is required when using Python 3
+		'python-xmp-toolkit',
 		'future'
 	]
 )
