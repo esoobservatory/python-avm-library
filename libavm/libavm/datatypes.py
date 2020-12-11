@@ -60,7 +60,7 @@ __all__ = [
 ]
 
 
-# This method was removed from libxmp
+# This function was removed from libxmp
 # See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
 def _encode_as_utf8(obj, input_encoding=None):
 	"""
@@ -68,7 +68,7 @@ def _encode_as_utf8(obj, input_encoding=None):
     If obj is not a string, it will try to convert the object into a unicode
     string and thereafter encode as UTF-8.
     """
-	# Python 3 support: unicode is now str, and we have the new type bytes
+	# Python 3: unicode is now str, and the is a new bytes type
 	# See: https://python-gtk-3-tutorial.readthedocs.io/en/latest/unicode.html#python-2
 	if sys.version_info[0] >= 3:
 		if isinstance(obj, bytes):
