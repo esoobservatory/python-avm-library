@@ -44,7 +44,7 @@ AVM_SCHEMAS = {
     XMP_NS_IPTCCore: 'Iptc4xmpCore',
     XMP_NS_DC: 'dc',
     XMP_NS_AVM: 'avm',
-    XMP_NS_XMP: 'xmpRights',
+    XMP_NS_XMP_Rights: 'xmpRights',
     XMP_NS_Photoshop: 'photoshop',
 }
 
