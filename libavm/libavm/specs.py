@@ -44,14 +44,7 @@ AVM_SCHEMAS = {
     XMP_NS_IPTCCore: 'Iptc4xmpCore',
     XMP_NS_DC: 'dc',
     XMP_NS_AVM: 'avm',
-	#####
-	# Disabled when upgrading to Python 3 because it causes:
-	# libxmp.XMPError: Exempi function failure ("unknown error")
-	# When:
-	# xmp = libxmp.XMPMeta()
-	# xmp.register_namespace(XMP_NS_XMP, 'xmpRights')
-	#####
-    # XMP_NS_XMP: 'xmpRights',
+    XMP_NS_XMP_Rights: 'xmpRights',
     XMP_NS_Photoshop: 'photoshop',
 }
 
