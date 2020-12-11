@@ -58,4 +58,5 @@ setup(
 	long_description='A module for parsing, manipulating, and serializing Astronomy Visualization Metadata in the XMP format. ',
 	license='New BSD License',
 	packages=['libavm'],
+	install_requires=['future']
 )
