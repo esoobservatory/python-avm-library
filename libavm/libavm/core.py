@@ -33,6 +33,7 @@
 A module for parsing, manipulating, and serializing AVM data in the XMP format.
 """
 
+from future.utils import raise_
 try:
 	import libxmp
 except ImportError:
@@ -97,7 +98,7 @@ class AVMMeta(object):
 			if avmdt.set_data(self.xmp, value):
 				self.data[key] = avmdt.get_data(self.xmp)
 		else:
-			raise KeyError, "The key '%s' is not an AVM field" % key
+			raise_(KeyError, "The key '%s' is not an AVM field" % key)
 	
 	def __getitem__(self, key):
 		
@@ -105,7 +106,7 @@ class AVMMeta(object):
 			avmdt = self.specs[key]
 			return avmdt.get_data(self.xmp)
 		else:
-			raise KeyError, "The key '%s' is not an AVM field" % key
+			raise_(KeyError, "The key '%s' is not an AVM field" % key)
 	
 	def __delitem__(self, key):
 		
@@ -125,6 +126,6 @@ class AVMMeta(object):
 			avmdt = self.specs[key]
 			return avmdt.to_string(self.xmp)
 		else:
-			raise KeyError, "The key '%s' is not an AVM field" % key
+			raise_(KeyError, "The key '%s' is not an AVM field" % key)
 
 

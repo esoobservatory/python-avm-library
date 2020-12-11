@@ -5,19 +5,19 @@
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #	  * Redistributions of source code must retain the above copyright
 #		notice, this list of conditions and the following disclaimer.
-# 
+#
 #	  * Redistributions in binary form must reproduce the above copyright
 #		notice, this list of conditions and the following disclaimer in the
 #		documentation and/or other materials provided with the distribution.
-# 
-#	  * Neither the name of the European Space Agency, European Southern 
-#		Observatory nor the names of its contributors may be used to endorse or 
-#		promote products derived from this software without specific prior 
+#
+#	  * Neither the name of the European Space Agency, European Southern
+#		Observatory nor the names of its contributors may be used to endorse or
+#		promote products derived from this software without specific prior
 #		written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY ESA/ESO ``AS IS'' AND ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -36,9 +36,9 @@ import libxmp
 import re
 import time
 import datetime
+import sys
 from dateutil import parser
 
-from libxmp.core import _encode_as_utf8
 from libavm.exceptions import *
 
 
@@ -58,6 +58,37 @@ __all__ = [
 	'AVMDateTime',
 	'AVMDateTimeList',
 ]
+
+
+# This function was removed from libxmp
+# See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
+def _encode_as_utf8(obj, input_encoding=None):
+	"""
+    Helper function to ensure that a proper string object in UTF-8 encoding.
+    If obj is not a string, it will try to convert the object into a unicode
+    string and thereafter encode as UTF-8.
+    """
+	# Python 3: unicode is now str, and the is a new bytes type
+	# See: https://python-gtk-3-tutorial.readthedocs.io/en/latest/unicode.html#python-2
+	if sys.version_info[0] >= 3:
+		if isinstance(obj, bytes):
+			return obj.decode()
+		else:
+			return obj
+
+	if sys.hexversion >= 0x03000000:
+		obj = obj.encode()
+		return obj
+
+	if isinstance( obj, unicode ):
+		return obj.encode('utf-8')
+	elif isinstance( obj, str ):
+		if not input_encoding or input_encoding == 'utf-8':
+			return obj
+		else:
+			return obj.decode(input_encoding).encode('utf-8')
+	else:
+		return unicode( obj ).encode('utf-8')
 
 
 class AVMData( object ):
@@ -717,7 +748,7 @@ class AVMOrderedFloatList( AVMOrderedList ):
 					try:
 						float(value)
 						checked_data.append(value)	
-					except Exception, e:
+					except Exception as e:
 						raise TypeError("Enter a string that can be represented as a number.")
 				else:
 					checked_data.append("-")

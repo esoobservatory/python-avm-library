@@ -43,7 +43,7 @@ import sys
 def read_version():
     try:
         return open('VERSION', 'r').readline().strip()
-    except IOError, e:
+    except IOError as e:
         raise SystemExit(
             "Error: you must run setup from the root directory (%s)" % str(e))
 
@@ -58,4 +58,9 @@ setup(
 	long_description='A module for parsing, manipulating, and serializing Astronomy Visualization Metadata in the XMP format. ',
 	license='New BSD License',
 	packages=['libavm'],
+	install_requires=[
+		# python-xmp-toolkit == 2.0.1 or newer is required when using Python 3
+		'python-xmp-toolkit',
+		'future'
+	]
 )
