@@ -717,7 +717,7 @@ class AVMOrderedFloatList( AVMOrderedList ):
 					try:
 						float(value)
 						checked_data.append(value)	
-					except Exception, e:
+					except Exception as e:
 						raise TypeError("Enter a string that can be represented as a number.")
 				else:
 					checked_data.append("-")

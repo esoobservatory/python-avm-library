@@ -30,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE
 
 
+from __future__ import print_function
 from libavm import *
 from libavm.specs import *
 from libavm.core import *
@@ -37,4 +38,4 @@ from libavm.core import *
 try:
     import libxmp
 except ImportError:
-    print "The Python AVM Library requires the Python XMP Toolkit"
+    print("The Python AVM Library requires the Python XMP Toolkit")

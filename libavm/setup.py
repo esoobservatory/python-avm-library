@@ -43,7 +43,7 @@ import sys
 def read_version():
     try:
         return open('VERSION', 'r').readline().strip()
-    except IOError, e:
+    except IOError as e:
         raise SystemExit(
             "Error: you must run setup from the root directory (%s)" % str(e))
 
