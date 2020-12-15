@@ -119,7 +119,7 @@ class AVMUtilsTestCase(unittest.TestCase):
         remove_temp_samples()
         
     def test_avm_to_file(self):
-        for f in samplefiles.iteritems():
+        for f in samplefiles.items():
             print(f[0])
             avm_to_file(f[0], self.avm_dict, replace=True)
             retrieved_avm = avm_from_file(f[0])

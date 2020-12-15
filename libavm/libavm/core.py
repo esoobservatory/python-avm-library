@@ -33,6 +33,7 @@
 A module for parsing, manipulating, and serializing AVM data in the XMP format.
 """
 
+from builtins import object
 from future.utils import raise_
 try:
 	import libxmp
@@ -66,7 +67,7 @@ class AVMMeta(object):
 			self.specs = SPECS_1_1
 		
 		# Register all avm schema
-		for SCHEMA, PREFIX in AVM_SCHEMAS.items():
+		for SCHEMA, PREFIX in list(AVM_SCHEMAS.items()):
 			self.xmp.register_namespace(SCHEMA, PREFIX)
 		
 		# Pass an XMPMeta object
@@ -74,7 +75,7 @@ class AVMMeta(object):
 			# Parse for AVM
 			self.xmp = xmp
 			# Synchronize XMP data with dictionary
-			for key, value in self.specs.items():
+			for key, value in list(self.specs.items()):
 				avmdt = self.specs[key]
 				try:
 					if avmdt.get_data(self.xmp):
@@ -84,7 +85,7 @@ class AVMMeta(object):
 				
 		# Pass an AVM dictionary
 		if avm_dict:
-			for key, item in avm_dict.iteritems():
+			for key, item in avm_dict.items():
 				try:
 					self[key] = item
 				except:

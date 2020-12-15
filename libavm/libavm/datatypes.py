@@ -32,6 +32,10 @@
 """
 Definition of various AVM specific data types
 """
+# Upgrade to Python 3
+from builtins import str
+from builtins import range
+from builtins import object
 import libxmp
 import re
 import time
@@ -59,13 +63,9 @@ __all__ = [
 	'AVMDateTimeList',
 ]
 
-# Upgrade to python 3
-if sys.version_info[0] >= 3:
-	unicode = str
-
 # This function was removed from libxmp
 # See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
-def _encode_as_utf8(obj, input_encoding=None):
+def _encode_as_utf8(obj):
 	"""
     Helper function to ensure that a proper string object in UTF-8 encoding.
     If obj is not a string, it will try to convert the object into a unicode
@@ -76,22 +76,15 @@ def _encode_as_utf8(obj, input_encoding=None):
 	if sys.version_info[0] >= 3:
 		if isinstance(obj, bytes):
 			return obj.decode()
-		else:
+		elif isinstance(obj, str):
 			return obj
+		else:
+			return str(obj)
 
-	if sys.hexversion >= 0x03000000:
-		obj = obj.encode()
-		return obj
-
-	if isinstance( obj, unicode ):
+	if isinstance(obj, str):
 		return obj.encode('utf-8')
-	elif isinstance( obj, str ):
-		if not input_encoding or input_encoding == 'utf-8':
-			return obj
-		else:
-			return obj.decode(input_encoding).encode('utf-8')
 	else:
-		return unicode( obj ).encode('utf-8')
+		return str(obj).encode('utf-8')
 
 
 class AVMData( object ):
@@ -169,7 +162,7 @@ class AVMString( AVMData ):
 		"""
 		if not value:
 			return None
-		if isinstance(value, str) or isinstance(value, unicode):
+		if isinstance(value, str):
 			return _encode_as_utf8(value)
 		else:
 			raise TypeError("Value is not a string or unicode.")
@@ -192,7 +185,7 @@ class AVMURL( AVMString ):
 		if not value:
 			return None
 		
-		if not (isinstance(value, str) or isinstance(value, unicode)):
+		if not (isinstance(value, str)):
 			raise TypeError("Value is not a string or unicode.")
 		
 		value =  _encode_as_utf8(value)
@@ -228,7 +221,7 @@ class AVMEmail( AVMString ):
 		
 		:return: String (UTF-8)
 		"""
-		if not (isinstance(value, str) or isinstance(value, unicode)):
+		if not (isinstance(value, str)):
 			raise TypeError("Value is not a string or unicode.") 
 		
 		value =  _encode_as_utf8(value)
@@ -281,7 +274,7 @@ class AVMStringCV( AVMString ):
 		if not value:
 			return None
 		
-		if isinstance(value, str) or isinstance(value, unicode):
+		if isinstance(value, str):
 			value =  _encode_as_utf8(value)
 			value = self.format_data(value)
 			
@@ -580,7 +573,7 @@ class AVMUnorderedList( AVMData ):
 		
 		items = []
 		for i in range(1, num_items):
-			item = _encode_as_utf8(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
+			item = _encode_as_utf8(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items
@@ -621,7 +614,7 @@ class AVMUnorderedStringList( AVMUnorderedList ):
 		checked_data = []
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str) or isinstance(value, unicode)):
+			if (isinstance(value, str)):
 				value =  _encode_as_utf8(value)
 				checked_data.append(value)
 			else:
@@ -702,7 +695,7 @@ class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
 		length = 0
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str) or isinstance(value, unicode)):
+			if (isinstance(value, str)):
 				value =  _encode_as_utf8(value)
 				value = self.format_data(value)
 				
@@ -811,7 +804,7 @@ class AVMDateTimeList( AVMOrderedList ):
 		
 		items = []
 		for i in range(1, num_items):
-			item = parser.parse(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
+			item = parser.parse(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items

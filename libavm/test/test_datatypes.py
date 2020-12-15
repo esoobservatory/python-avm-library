@@ -81,7 +81,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMString(self):    
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMString:
                 avm.__setitem__(key, self.string_data)
                 self.assertEqual(avm.__getitem__(key), self.string_data, key)
@@ -101,7 +101,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMURL(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMURL:
                 avm.__setitem__(key, self.url_data)
                 self.assertEqual(avm.__getitem__(key), self.url_data, key)
@@ -123,7 +123,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMEmail(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMEmail:
                 avm.__setitem__(key, self.email_data)
                 self.assertEqual(avm.__getitem__(key), self.email_data, key)
@@ -145,7 +145,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMLocalizedString(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMLocalizedString:
                 avm.__setitem__(key, self.string_data)
                 self.assertEqual(avm.__getitem__(key), self.string_data, key)
@@ -165,7 +165,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMFloat(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMFloat:
                 avm.__setitem__(key, self.float_data)
                 self.assertEqual(avm.__getitem__(key), self.float_data, key)
@@ -187,7 +187,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMUnorderedStringList(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMUnorderedStringList:
                 avm.__setitem__(key, self.string_set_data)
                 self.assertEqual(avm.__getitem__(key), self.string_set_data, key)
@@ -209,7 +209,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMOrderedStringList(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMOrderedStringList:
                 avm.__setitem__(key, self.string_list_data)
                 self.assertEqual(avm.__getitem__(key), self.string_list_data, key)
@@ -234,7 +234,7 @@ class AVMMetaTestCase(unittest.TestCase):
         """
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMOrderedFloatList:
                 #avm.__setitem__(key, self.float_list_data)
                 #self.assertEqual(avm.__getitem__(key), self.float_list_data, key)
@@ -257,7 +257,7 @@ class AVMMetaTestCase(unittest.TestCase):
     def test_AVMDate(self):
         avm = AVMMeta()
         
-        for key, value in SPECS_1_1.items():
+        for key, value in list(SPECS_1_1.items()):
             if type(value) is AVMDate:
                 avm.__setitem__(key, self.date_data)
                 self.assertEqual(avm.__getitem__(key), self.date_data, key)
