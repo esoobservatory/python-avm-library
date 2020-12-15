@@ -128,5 +128,3 @@ class AVMMeta(object):
 			return avmdt.to_string(self.xmp)
 		else:
 			raise_(KeyError, "The key '%s' is not an AVM field" % key)
-
-

@@ -115,12 +115,19 @@ class AVMData( object ):
 		"""
 		if value is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		value = self.check_data(value)
-		if xmp_packet.set_property(self.namespace, self.path, value):
+		# Fixes issue in Python 3 with libxmp > 2.0
+		if sys.version_info[0] >= 3:
+			if value is None:
+				value = ''
+		
+		try:
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.set_property(self.namespace, self.path, value)
 			return True
-		else:
+		except:
 			return False
 	
 	def get_data(self, xmp_packet):
@@ -162,10 +169,10 @@ class AVMString( AVMData ):
 		"""
 		if not value:
 			return None
-		if isinstance(value, str):
+		if isinstance(value, str) or isinstance(value, bytes):
 			return _encode_as_utf8(value)
 		else:
-			raise TypeError("Value is not a string or unicode.")
+			raise TypeError("Value is not a string or bytes.")
 
 
 class AVMURL( AVMString ):
@@ -185,8 +192,8 @@ class AVMURL( AVMString ):
 		if not value:
 			return None
 		
-		if not (isinstance(value, str)):
-			raise TypeError("Value is not a string or unicode.")
+		if not (isinstance(value, str) or isinstance(value, bytes)):
+			raise TypeError("Value is not a string or bytes.")
 		
 		value =  _encode_as_utf8(value)
 		
@@ -216,13 +223,13 @@ class AVMEmail( AVMString ):
 	def check_data(self, value):
 		"""
 		Checks data is a string or unicode, and checks against a regular expression
-		for an email.  If value is not a string or unicode, a TypeError is raised.
+		for an email.  If Value is not a string or bytes, a TypeError is raised.
 		If the value is not a proper email, then a ValueError is raised.
 		
 		:return: String (UTF-8)
 		"""
-		if not (isinstance(value, str)):
-			raise TypeError("Value is not a string or unicode.") 
+		if not (isinstance(value, str) or isinstance(value, bytes)):
+			raise TypeError("Value is not a string or bytes.") 
 		
 		value =  _encode_as_utf8(value)
 		
@@ -274,7 +281,7 @@ class AVMStringCV( AVMString ):
 		if not value:
 			return None
 		
-		if isinstance(value, str):
+		if isinstance(value, str) or isinstance(value, bytes):
 			value =  _encode_as_utf8(value)
 			value = self.format_data(value)
 			
@@ -283,7 +290,7 @@ class AVMStringCV( AVMString ):
 			else:
 				raise AVMItemNotInControlledVocabularyError("Item is not in the controlled vocabulary.")
 		else:
-			raise TypeError("Value is not a string or unicode.")	
+			raise TypeError("Value is not a string or bytes.")	
 
 
 class AVMStringCVCapitalize( AVMStringCV ):
@@ -330,12 +337,19 @@ class AVMLocalizedString( AVMString ):
 		"""
 		if value is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		value = self.check_data(value)
-		if xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value):
+		# Fixes issue in Python 3 with libxmp > 2.0
+		if sys.version_info[0] >= 3:
+			if value is None:
+				value = ''
+
+		try:
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value)
 			return True
-		else:
+		except:
 			return False
 	
 	def get_data(self, xmp_packet):
@@ -517,7 +531,7 @@ class AVMUnorderedList( AVMData ):
 		for value in values:
 			value = _encode_as_utf8(value)
 			length += len(value)
-			if value is "":
+			if value == "":
 				value = "-"
 			checked_data.append(value)
 		
@@ -538,7 +552,7 @@ class AVMUnorderedList( AVMData ):
 		"""
 		if values is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		# Check data type and length
 		values = self.check_data(values)
@@ -551,10 +565,8 @@ class AVMUnorderedList( AVMData ):
 		}
 		
 		for value in values:
-			if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
-				continue
-			else:
-				return False
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.append_array_item(self.namespace, self.path, value, arr_options)
 			
 		return True
 
@@ -566,14 +578,18 @@ class AVMUnorderedList( AVMData ):
 		"""
 		num_items = xmp_packet.count_array_items(self.namespace, self.path)
 		
-		if num_items is 0:
+		if num_items == 0:
 			return None
 		
 		num_items += 1
 		
 		items = []
 		for i in range(1, num_items):
-			item = _encode_as_utf8(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
+			# From libxmp 2.0 xmp_packet.get_array_item returns a string instead of a dict
+			if sys.version_info[0] >= 3:
+				item = _encode_as_utf8(xmp_packet.get_array_item(self.namespace, self.path, i))
+			else:
+				item = _encode_as_utf8(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items
@@ -614,11 +630,11 @@ class AVMUnorderedStringList( AVMUnorderedList ):
 		checked_data = []
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str)):
+			if (isinstance(value, str) or isinstance(value, bytes)):
 				value =  _encode_as_utf8(value)
 				checked_data.append(value)
 			else:
-				raise TypeError("Elements of list need to be string or unicode.")
+				raise TypeError("Elements of list need to be string or bytes.")
 		
 		return checked_data
 
@@ -635,7 +651,7 @@ class AVMOrderedList( AVMUnorderedList ):
 		"""
 		if values is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		values = self.check_data(values)
 		
@@ -648,10 +664,8 @@ class AVMOrderedList( AVMUnorderedList ):
 		}
 		
 		for value in values:
-			if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
-				continue
-			else:
-				return False
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.append_array_item(self.namespace, self.path, value, arr_options)
 		return True
 
 
@@ -695,7 +709,7 @@ class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
 		length = 0
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str)):
+			if (isinstance(value, str) or isinstance(value, bytes)):
 				value =  _encode_as_utf8(value)
 				value = self.format_data(value)
 				
@@ -707,7 +721,7 @@ class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
 				if value is None:
 					checked_data.append("-")
 				else:
-					raise TypeError("Elements of list need to be string or unicode.")
+					raise TypeError("Elements of list need to be string or bytes.")
 		
 		if len(set(checked_data)) == 1 and checked_data[0] == "-": 
 			checked_data = []
@@ -797,14 +811,18 @@ class AVMDateTimeList( AVMOrderedList ):
 		"""
 		num_items = xmp_packet.count_array_items(self.namespace, self.path)
 		
-		if num_items is 0:
+		if num_items == 0:
 			return None
 		
 		num_items += 1
 		
 		items = []
 		for i in range(1, num_items):
-			item = parser.parse(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
+			# From libxmp 2.0 xmp_packet.get_array_item returns a string instead of a dict 
+			if sys.version_info[0] >= 3:
+				item = parser.parse(xmp_packet.get_array_item(self.namespace, self.path, i))
+			else:
+				item = parser.parse(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items

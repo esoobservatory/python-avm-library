@@ -53,7 +53,7 @@ def avm_from_file( file_path ):
 	xmpfile = libxmp.files.XMPFiles()
 	
 	try:
-		xmpfile.open_file(file_path, open_option=libxmp.files.XMP_OPEN_READ)
+		xmpfile.open_file(file_path, open_option=libxmp.consts.XMP_OPEN_READ)
 		xmp = xmpfile.get_xmp()
 		xmpfile.close_file()
 	except libxmp.XMPError:
@@ -74,7 +74,7 @@ def avm_obj_from_file( file_path ):
 	xmpfile = libxmp.files.XMPFiles()
 	
 	try:
-		xmpfile.open_file(file_path, open_option=libxmp.files.XMP_OPEN_READ)
+		xmpfile.open_file(file_path, open_option=libxmp.consts.XMP_OPEN_READ)
 		xmp = xmpfile.get_xmp()
 		xmpfile.close_file()
 	except libxmp.XMPError:
@@ -100,10 +100,9 @@ def avm_to_file( file_path, dict={}, replace=False ):
 	
 	.. todo:: Improve avm_to_file function.  Add ability to input an XMP file
 	"""
-	xmpfile = libxmp.files.XMPFiles()
 	
 	try:
-		xmpfile.open_file(file_path, open_forupdate=True)
+		xmpfile = libxmp.files.XMPFiles(file_path=file_path, open_forupdate=True)
 	except libxmp.XMPError:
 		return False
 
@@ -117,7 +116,6 @@ def avm_to_file( file_path, dict={}, replace=False ):
 			xmp = libxmp.XMPMeta()
 	
 	avm = libavm.AVMMeta(xmp=xmp, avm_dict=dict)
-	
 	if xmpfile.can_put_xmp(avm.xmp):
 		xmpfile.put_xmp(avm.xmp)
 		xmpfile.close_file()
