@@ -66,6 +66,8 @@ class AVMMeta(object):
 		if version == "1.1":
 			self.specs = SPECS_1_1
 		
+		if version == "1.2":
+			self.specs = SPECS_1_2
 		# Register all avm schema
 		for SCHEMA, PREFIX in list(AVM_SCHEMAS.items()):
 			self.xmp.register_namespace(SCHEMA, PREFIX)
