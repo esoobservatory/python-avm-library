@@ -29,6 +29,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE
 
+from __future__ import print_function
 import unittest
 
 import sys
@@ -118,8 +119,8 @@ class AVMUtilsTestCase(unittest.TestCase):
         remove_temp_samples()
         
     def test_avm_to_file(self):
-        for f in samplefiles.iteritems():
-            print f[0]
+        for f in samplefiles.items():
+            print(f[0])
             avm_to_file(f[0], self.avm_dict, replace=True)
             retrieved_avm = avm_from_file(f[0])
             self.assertEqual(retrieved_avm, self.avm_dict, f[0])

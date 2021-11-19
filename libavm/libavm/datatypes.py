@@ -5,19 +5,19 @@
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #	  * Redistributions of source code must retain the above copyright
 #		notice, this list of conditions and the following disclaimer.
-# 
+#
 #	  * Redistributions in binary form must reproduce the above copyright
 #		notice, this list of conditions and the following disclaimer in the
 #		documentation and/or other materials provided with the distribution.
-# 
-#	  * Neither the name of the European Space Agency, European Southern 
-#		Observatory nor the names of its contributors may be used to endorse or 
-#		promote products derived from this software without specific prior 
+#
+#	  * Neither the name of the European Space Agency, European Southern
+#		Observatory nor the names of its contributors may be used to endorse or
+#		promote products derived from this software without specific prior
 #		written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY ESA/ESO ``AS IS'' AND ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -32,13 +32,17 @@
 """
 Definition of various AVM specific data types
 """
+# Upgrade to Python 3
+from builtins import str
+from builtins import range
+from builtins import object
 import libxmp
 import re
 import time
 import datetime
+import sys
 from dateutil import parser
 
-from libxmp.core import _encode_as_utf8
 from libavm.exceptions import *
 
 
@@ -58,6 +62,29 @@ __all__ = [
 	'AVMDateTime',
 	'AVMDateTimeList',
 ]
+
+# This function was removed from libxmp
+# See: https://github.com/python-xmp-toolkit/python-xmp-toolkit/commit/6c1dd6e8ea0cc19da64178da4c5f4c0c1f02a415
+def _encode_as_utf8(obj):
+	"""
+    Helper function to ensure that a proper string object in UTF-8 encoding.
+    If obj is not a string, it will try to convert the object into a unicode
+    string and thereafter encode as UTF-8.
+    """
+	# Python 3: unicode is now str, and the is a new bytes type
+	# See: https://python-gtk-3-tutorial.readthedocs.io/en/latest/unicode.html#python-2
+	if sys.version_info[0] >= 3:
+		if isinstance(obj, bytes):
+			return obj.decode()
+		elif isinstance(obj, str):
+			return obj
+		else:
+			return str(obj)
+
+	if isinstance(obj, str):
+		return obj.encode('utf-8')
+	else:
+		return str(obj).encode('utf-8')
 
 
 class AVMData( object ):
@@ -88,12 +115,19 @@ class AVMData( object ):
 		"""
 		if value is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		value = self.check_data(value)
-		if xmp_packet.set_property(self.namespace, self.path, value):
+		# Fixes issue in Python 3 with libxmp > 2.0
+		if sys.version_info[0] >= 3:
+			if value is None:
+				value = ''
+		
+		try:
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.set_property(self.namespace, self.path, value)
 			return True
-		else:
+		except:
 			return False
 	
 	def get_data(self, xmp_packet):
@@ -135,10 +169,10 @@ class AVMString( AVMData ):
 		"""
 		if not value:
 			return None
-		if isinstance(value, str) or isinstance(value, unicode):
+		if isinstance(value, str) or isinstance(value, bytes):
 			return _encode_as_utf8(value)
 		else:
-			raise TypeError("Value is not a string or unicode.")
+			raise TypeError("Value is not a string or bytes.")
 
 
 class AVMURL( AVMString ):
@@ -158,8 +192,8 @@ class AVMURL( AVMString ):
 		if not value:
 			return None
 		
-		if not (isinstance(value, str) or isinstance(value, unicode)):
-			raise TypeError("Value is not a string or unicode.")
+		if not (isinstance(value, str) or isinstance(value, bytes)):
+			raise TypeError("Value is not a string or bytes.")
 		
 		value =  _encode_as_utf8(value)
 		
@@ -189,13 +223,13 @@ class AVMEmail( AVMString ):
 	def check_data(self, value):
 		"""
 		Checks data is a string or unicode, and checks against a regular expression
-		for an email.  If value is not a string or unicode, a TypeError is raised.
+		for an email.  If Value is not a string or bytes, a TypeError is raised.
 		If the value is not a proper email, then a ValueError is raised.
 		
 		:return: String (UTF-8)
 		"""
-		if not (isinstance(value, str) or isinstance(value, unicode)):
-			raise TypeError("Value is not a string or unicode.") 
+		if not (isinstance(value, str) or isinstance(value, bytes)):
+			raise TypeError("Value is not a string or bytes.") 
 		
 		value =  _encode_as_utf8(value)
 		
@@ -247,7 +281,7 @@ class AVMStringCV( AVMString ):
 		if not value:
 			return None
 		
-		if isinstance(value, str) or isinstance(value, unicode):
+		if isinstance(value, str) or isinstance(value, bytes):
 			value =  _encode_as_utf8(value)
 			value = self.format_data(value)
 			
@@ -256,7 +290,7 @@ class AVMStringCV( AVMString ):
 			else:
 				raise AVMItemNotInControlledVocabularyError("Item is not in the controlled vocabulary.")
 		else:
-			raise TypeError("Value is not a string or unicode.")	
+			raise TypeError("Value is not a string or bytes.")	
 
 
 class AVMStringCVCapitalize( AVMStringCV ):
@@ -303,12 +337,19 @@ class AVMLocalizedString( AVMString ):
 		"""
 		if value is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		value = self.check_data(value)
-		if xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value):
+		# Fixes issue in Python 3 with libxmp > 2.0
+		if sys.version_info[0] >= 3:
+			if value is None:
+				value = ''
+
+		try:
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.set_localized_text(self.namespace, self.path, self.generic_lang, self.specific_lang, value)
 			return True
-		else:
+		except:
 			return False
 	
 	def get_data(self, xmp_packet):
@@ -490,7 +531,7 @@ class AVMUnorderedList( AVMData ):
 		for value in values:
 			value = _encode_as_utf8(value)
 			length += len(value)
-			if value is "":
+			if value == "":
 				value = "-"
 			checked_data.append(value)
 		
@@ -511,7 +552,7 @@ class AVMUnorderedList( AVMData ):
 		"""
 		if values is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		# Check data type and length
 		values = self.check_data(values)
@@ -524,10 +565,8 @@ class AVMUnorderedList( AVMData ):
 		}
 		
 		for value in values:
-			if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
-				continue
-			else:
-				return False
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.append_array_item(self.namespace, self.path, value, arr_options)
 			
 		return True
 
@@ -539,14 +578,18 @@ class AVMUnorderedList( AVMData ):
 		"""
 		num_items = xmp_packet.count_array_items(self.namespace, self.path)
 		
-		if num_items is 0:
+		if num_items == 0:
 			return None
 		
 		num_items += 1
 		
 		items = []
 		for i in range(1, num_items):
-			item = _encode_as_utf8(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
+			# From libxmp 2.0 xmp_packet.get_array_item returns a string instead of a dict
+			if sys.version_info[0] >= 3:
+				item = _encode_as_utf8(xmp_packet.get_array_item(self.namespace, self.path, i))
+			else:
+				item = _encode_as_utf8(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items
@@ -587,11 +630,11 @@ class AVMUnorderedStringList( AVMUnorderedList ):
 		checked_data = []
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str) or isinstance(value, unicode)):
+			if (isinstance(value, str) or isinstance(value, bytes)):
 				value =  _encode_as_utf8(value)
 				checked_data.append(value)
 			else:
-				raise TypeError("Elements of list need to be string or unicode.")
+				raise TypeError("Elements of list need to be string or bytes.")
 		
 		return checked_data
 
@@ -608,7 +651,7 @@ class AVMOrderedList( AVMUnorderedList ):
 		"""
 		if values is None:
 			self.delete_data(xmp_packet)
-			return True
+			return False
 		
 		values = self.check_data(values)
 		
@@ -621,10 +664,8 @@ class AVMOrderedList( AVMUnorderedList ):
 		}
 		
 		for value in values:
-			if xmp_packet.append_array_item(self.namespace, self.path, value, arr_options):
-				continue
-			else:
-				return False
+			# From libxmp 2.0 this doesn't longer returns bool
+			xmp_packet.append_array_item(self.namespace, self.path, value, arr_options)
 		return True
 
 
@@ -668,7 +709,7 @@ class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
 		length = 0
 		# Check data type in list
 		for value in values:
-			if (isinstance(value, str) or isinstance(value, unicode)):
+			if (isinstance(value, str) or isinstance(value, bytes)):
 				value =  _encode_as_utf8(value)
 				value = self.format_data(value)
 				
@@ -680,7 +721,7 @@ class AVMOrderedListCV( AVMOrderedList, AVMStringCVCapitalize):
 				if value is None:
 					checked_data.append("-")
 				else:
-					raise TypeError("Elements of list need to be string or unicode.")
+					raise TypeError("Elements of list need to be string or bytes.")
 		
 		if len(set(checked_data)) == 1 and checked_data[0] == "-": 
 			checked_data = []
@@ -717,7 +758,7 @@ class AVMOrderedFloatList( AVMOrderedList ):
 					try:
 						float(value)
 						checked_data.append(value)	
-					except Exception, e:
+					except Exception as e:
 						raise TypeError("Enter a string that can be represented as a number.")
 				else:
 					checked_data.append("-")
@@ -770,14 +811,18 @@ class AVMDateTimeList( AVMOrderedList ):
 		"""
 		num_items = xmp_packet.count_array_items(self.namespace, self.path)
 		
-		if num_items is 0:
+		if num_items == 0:
 			return None
 		
 		num_items += 1
 		
 		items = []
 		for i in range(1, num_items):
-			item = parser.parse(xmp_packet.get_array_item(self.namespace, self.path, i).keys()[0])
+			# From libxmp 2.0 xmp_packet.get_array_item returns a string instead of a dict 
+			if sys.version_info[0] >= 3:
+				item = parser.parse(xmp_packet.get_array_item(self.namespace, self.path, i))
+			else:
+				item = parser.parse(list(xmp_packet.get_array_item(self.namespace, self.path, i).keys())[0])
 			items.append(item)
 			
 		return items

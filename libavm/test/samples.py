@@ -79,7 +79,7 @@ samplefiles = {
 }
 
 files = {}
-for k,v in samplefiles.iteritems():
+for k,v in samplefiles.items():
 	files[sampledir + k] = v
 samplefiles = files
 
@@ -94,5 +94,5 @@ def remove_temp_samples():
 	global sampledir
 	if os.path.exists( sampledir ):
 		if not os.path.isdir( sampledir):
-			raise StandardError('Cannot remove .tempsamples - it is not a directory. Please manually remove it.')
+			raise Exception('Cannot remove .tempsamples - it is not a directory. Please manually remove it.')
 		shutil.rmtree( sampledir )
